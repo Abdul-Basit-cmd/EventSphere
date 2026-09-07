@@ -1,25 +1,35 @@
 import mongoose from "mongoose";
 import config from "./config.js";
 
-let isConnected = false;
+// Cached connection for serverless environments (Vercel)
+let connectionPromise = null;
 
 const connectDB = async () => {
-  if (isConnected || mongoose.connection.readyState === 1) {
-    isConnected = true;
+  // Already connected
+  if (mongoose.connection.readyState === 1) {
     return;
   }
 
-  try {
-    const db = await mongoose.connect(config.MONGO_URI, {
-      bufferCommands: false,
-    });
-    isConnected = db.connections[0].readyState === 1;
-    console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
-    // Throw error so Express middleware can catch it instead of killing the process
-    throw error;
+  // Connection in progress — reuse the same promise instead of opening a new one
+  if (connectionPromise) {
+    return connectionPromise;
   }
+
+  connectionPromise = mongoose
+    .connect(config.MONGO_URI, {
+      bufferCommands: false,
+    })
+    .then((db) => {
+      console.log("MongoDB connected successfully");
+      return db;
+    })
+    .catch((error) => {
+      console.error("Error connecting to MongoDB:", error.message);
+      connectionPromise = null; // Reset so next request can retry
+      throw error;
+    });
+
+  return connectionPromise;
 };
 
 export default connectDB;
