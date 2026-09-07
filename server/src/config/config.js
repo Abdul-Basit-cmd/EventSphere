@@ -17,7 +17,7 @@ if (!process.env.NODE_ENV) {
   console.log("NODE_ENV is missing in enviroment variables");
   process.exit(1);
 }
-if (!process.env.FRONTEND_URL) {
+if (!process.env.CLIENT_URL) {
   console.log("FRONTEND_URL is missing in enviroment variables");
   process.exit(1);
 }

@@ -15,15 +15,14 @@ import exhibitorDirectoryRoutes from './routes/exhibitorDirectory.routes.js';
 import adminAnalyticsRoutes from './routes/adminAnalytics.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import globalErrorHandler from './middlewares/error.middleware.js';
-import { startSessionReminderScheduler } from './utils/sessionReminders.js';
+import config from './config/config.js';
 
 const app = express();
 
 // 2. CORS Configuration
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-];
+  config.CLIENT_URL,
+].filter(Boolean);
 
 app.use(
   cors({
@@ -31,10 +30,10 @@ app.use(
       if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
-        callback(null, true);
+        callback(new Error('Not allowed by CORS'));
       }
     },
-    credentials: true, // Cookies / Authorization headers pass karne ke liye
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   })
@@ -43,9 +42,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-connectDB().then(() => {
-  startSessionReminderScheduler();
-});
 
 const API_PREFIX = '/api/v1';
 
