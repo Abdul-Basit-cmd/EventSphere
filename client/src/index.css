@@ -1,0 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-bg:           #0B0E14;
+  --color-surface:      #161B26;
+  --color-surface-alt:  #1C2333;
+  --color-border:       #1E2A3B;
+  --color-border-light: #263347;
+
+  --color-primary:      #2563EB;
+  --color-primary-hover:#1D4ED8;
+  --color-primary-muted:#2563EB26;
+
+  --color-accent:       #06B6D4;
+  --color-accent-muted: #06B6D426;
+
+  --color-text:         #FFFFFF;
+  --color-text-muted:   #94A3B8;
+  --color-text-dim:     #64748B;
+
+  --color-success:      #10B981;
+  --color-success-muted:#10B98126;
+  --color-warning:      #F59E0B;
+  --color-warning-muted:#F59E0B26;
+  --color-danger:       #EF4444;
+  --color-danger-muted: #EF444426;
+
+  --color-sidebar:      #0F1319;
+
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading);
+}
+
+h1 {
+  font-weight: 700;
+}
+
+h2 {
+  font-weight: 700;
+}
+
+h3, h4 {
+  font-weight: 600;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
+
+/* Button micro-interactions */
+button, a[role="button"], .btn {
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled), a[role="button"]:hover {
+  filter: brightness(1.06);
+}
+
+button:active:not(:disabled), a[role="button"]:active {
+  transform: translateY(0px);
+}
+
+/* Primary Button Micro-interactions */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px var(--color-primary-muted);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0px);
+}
+
+/* Card hover lift micro-interaction */
+.card-lift {
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.card-lift:hover {
+  border-color: var(--color-border-light);
+  transform: translateY(-2px);
+}
+
+/* Input fields soft ring focus */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px var(--color-primary-muted) !important;
+  outline: none !important;
+}
+
+/* Table styling */
+.table-header {
+  background-color: var(--color-surface-alt);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.table-row-hover {
+  transition: background 0.15s ease;
+}
+
+.table-row-hover:hover {
+  background-color: var(--color-surface-alt);
+}
+
+/* Modal animation */
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-modal-in {
+  animation: modalIn 0.2s ease forwards;
+}
+
+/* Page header left accent bar */
+.page-header-accent {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 12px;
+}
+
+/* Dual-ring spinner keyframes */
+@keyframes spinCW  { to { transform: rotate(360deg);  } }
+@keyframes spinCCW { to { transform: rotate(-360deg); } }
+
+/* Global cursor rules */
+button,
+a,
+[role="button"],
+select,
+label[for],
+.cursor-pointer {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
+/* Hide native calendar picker indicator — DateInput component overlays its own */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ensure date inputs show correct text color on dark backgrounds */
+input[type="date"],
+input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+/* Custom dropdown animation */
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* DateInput — hide native browser calendar icon */
+.date-input-custom::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  cursor: pointer;
+}
+.date-input-custom::-webkit-inner-spin-button,
+.date-input-custom::-webkit-clear-button {
+  display: none;
+}
+.date-input-custom::-moz-calendar-picker-indicator {
+  display: none;
+}
