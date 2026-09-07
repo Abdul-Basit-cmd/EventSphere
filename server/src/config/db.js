@@ -1,14 +1,25 @@
 import mongoose from "mongoose";
-import config from './config.js';
+import config from "./config.js";
 
- const connectDB = async () => {
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected || mongoose.connection.readyState === 1) {
+    isConnected = true;
+    return;
+  }
+
   try {
-    await mongoose.connect(config.MONGO_URI);
+    const db = await mongoose.connect(config.MONGO_URI, {
+      bufferCommands: false,
+    });
+    isConnected = db.connections[0].readyState === 1;
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
-    process.exit(1);
+    // Throw error so Express middleware can catch it instead of killing the process
+    throw error;
   }
-}
+};
 
 export default connectDB;

@@ -1,6 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import cors from 'cors'; // 1. CORS Import kiya
+import cors from 'cors';
 import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
@@ -19,8 +19,20 @@ import config from './config/config.js';
 
 const app = express();
 
+// 1. Ensure DB Connection on every Serverless Request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 2. CORS Configuration
 const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
   config.CLIENT_URL,
 ].filter(Boolean);
 
@@ -42,6 +54,10 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Root endpoint prevent 404/500 on base URL
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'Ok', message: 'EventSphere API is live' });
+});
 
 const API_PREFIX = '/api/v1';
 
