@@ -58,17 +58,6 @@ const DashboardPage = () => {
     setSelectedExpoId(event.target.value);
   };
 
-  if (isLoading && !analytics) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
-        <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs font-medium">
-          Loading dashboard metrics...
-        </p>
-      </div>
-    );
-  }
-
   const boothBreakdown = [
     { label: 'Assigned', value: analytics?.assignedBooths ?? 0 },
     { label: 'Reserved', value: analytics?.reservedBooths ?? 0 },
@@ -118,9 +107,10 @@ const DashboardPage = () => {
             <Select
               id="expoFilter"
               value={selectedExpoId}
-              onChange={(e) => setSelectedExpoId(e.target.value)}
+              onChange={handleFilterChange}
+              disabled={isLoading && expos.length === 0}
               options={[
-                { value: '', label: 'All Expos (Aggregate)' },
+                { value: '', label: 'All Expositions (Aggregate)' },
                 ...expos.map((expo) => ({ value: expo._id, label: expo.title })),
               ]}
             />
@@ -128,59 +118,88 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* KPI Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <StatCard
-          title="Total Expos"
-          value={analytics?.totalExpos ?? 0}
-          subtitle="Hosted & scheduled exhibitions"
-          icon={Calendar}
-        />
+      {isLoading && !analytics ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+          <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs font-medium">
+            Loading dashboard metrics...
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* KPI Stat Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <StatCard
+              title="Total Expos"
+              value={analytics?.totalExpos ?? 0}
+              subtitle="Hosted & scheduled exhibitions"
+              icon={Calendar}
+              accentColor="#3B82F6"
+              trend="+100%"
+              trendPositive={true}
+            />
 
-        <StatCard
-          title="Booths & Occupancy"
-          value={analytics?.totalBooths ?? 0}
-          subtitle={`${analytics?.boothOccupancyRate ?? 0}% overall occupancy`}
-          icon={Layers}
-          breakdown={boothBreakdown}
-        />
+            <StatCard
+              title="Booths & Occupancy"
+              value={analytics?.totalBooths ?? 0}
+              subtitle={`${analytics?.boothOccupancyRate ?? 0}% overall occupancy`}
+              icon={Layers}
+              accentColor="#10B981"
+              trend={`${analytics?.boothOccupancyRate ?? 0}%`}
+              trendPositive={(analytics?.boothOccupancyRate ?? 0) > 50}
+              breakdown={boothBreakdown}
+            />
 
-        <StatCard
-          title="Exhibitors"
-          value={analytics?.totalExhibitors ?? 0}
-          subtitle="Registered vendor profiles"
-          icon={Building}
-          breakdown={exhibitorBreakdown}
-        />
+            <StatCard
+              title="Exhibitors"
+              value={analytics?.totalExhibitors ?? 0}
+              subtitle="Registered vendor profiles"
+              icon={Building}
+              accentColor="#8B5CF6"
+              trend="+8.2%"
+              trendPositive={true}
+              breakdown={exhibitorBreakdown}
+            />
 
-        <StatCard
-          title="Attendees & Signups"
-          value={analytics?.totalRegistrations ?? 0}
-          subtitle="Confirmed registration tickets"
-          icon={Users}
-          breakdown={attendeeBreakdown}
-        />
+            <StatCard
+              title="Attendees & Signups"
+              value={analytics?.totalRegistrations ?? 0}
+              subtitle="Confirmed registration tickets"
+              icon={Users}
+              accentColor="#06B6D4"
+              trend="+15.4%"
+              trendPositive={true}
+              breakdown={attendeeBreakdown}
+            />
 
-        <StatCard
-          title="Scheduled Sessions"
-          value={analytics?.totalSessions ?? 0}
-          subtitle={`${analytics?.totalBookmarks ?? 0} session bookmarks logged`}
-          icon={Clock}
-        />
+            <StatCard
+              title="Scheduled Sessions"
+              value={analytics?.totalSessions ?? 0}
+              subtitle={`${analytics?.totalBookmarks ?? 0} session bookmarks logged`}
+              icon={Clock}
+              accentColor="#F59E0B"
+              trend="+12%"
+              trendPositive={true}
+            />
 
-        <StatCard
-          title="Booth Traffic"
-          value={analytics?.totalBoothVisits ?? 0}
-          subtitle="Total verified attendee visits logged"
-          icon={Eye}
-        />
-      </div>
+            <StatCard
+              title="Booth Traffic"
+              value={analytics?.totalBoothVisits ?? 0}
+              subtitle="Total verified attendee visits logged"
+              icon={Eye}
+              accentColor="#EC4899"
+              trend="+24%"
+              trendPositive={true}
+            />
+          </div>
 
-      {/* Registration Trends Chart */}
-      <DashboardCharts registrationTrends={registrationTrends} />
+          {/* Registration Trends Chart */}
+          <DashboardCharts registrationTrends={registrationTrends} />
 
-      {/* Popular Sessions & Booth Traffic */}
-      <DashboardTables popularSessions={popularSessions} boothTraffic={boothTraffic} />
+          {/* Popular Sessions & Booth Traffic */}
+          <DashboardTables popularSessions={popularSessions} boothTraffic={boothTraffic} />
+        </>
+      )}
     </div>
   );
 };

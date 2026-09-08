@@ -1,77 +1,51 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AuthLayout = ({ children, title, subtitle }) => {
   return (
-    <div
-      style={{
-        backgroundColor: 'var(--color-bg)',
-        color: 'var(--color-text)',
-      }}
-      className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans"
-    >
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <div
-            style={{
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-text)',
-            }}
-            className="w-9 h-9 rounded-xl flex items-center justify-center shadow-xs"
-          >
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <span
-            style={{
-              color: 'var(--color-text)',
-              fontFamily: 'var(--font-heading)',
-            }}
-            className="text-xl font-bold tracking-tight"
-          >
-            EventSphere
-          </span>
+    <div className="min-h-screen flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8 font-sans bg-[#0B0E14] text-slate-100">
+      <div className="w-full max-w-md">
+        {/* Brand Header */}
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex items-center gap-2.5 group mb-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white transition-transform group-hover:scale-105">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <span
+              style={{ fontFamily: 'var(--font-heading)' }}
+              className="text-xl font-bold tracking-tight text-white"
+            >
+              EventSphere
+            </span>
+          </Link>
+
+          {title && (
+            <h1
+              style={{ fontFamily: 'var(--font-heading)' }}
+              className="text-lg font-bold text-white tracking-tight"
+            >
+              {title}
+            </h1>
+          )}
+
+          {subtitle && (
+            <p className="mt-1 text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+              {subtitle}
+            </p>
+          )}
         </div>
 
-        {title && (
-          <h2
-            style={{
-              color: 'var(--color-text)',
-              fontFamily: 'var(--font-heading)',
-            }}
-            className="mt-4 text-center text-xl font-bold tracking-tight"
-          >
-            {title}
-          </h2>
-        )}
-
-        {subtitle && (
-          <p
-            style={{ color: 'var(--color-text-muted)' }}
-            className="mt-1 text-center text-xs font-normal"
-          >
-            {subtitle}
-          </p>
-        )}
-      </div>
-
-      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
-        <div
-          style={{
-            backgroundColor: 'var(--color-surface)',
-            borderColor: 'var(--color-border)',
-            borderTop: '2px solid var(--color-primary)',
-          }}
-          className="py-8 px-6 sm:px-10 shadow-xs border rounded-2xl"
-        >
+        {/* Clean, Crisp Card without any glowing borders or shadows */}
+        <div className="rounded-2xl border border-slate-800 bg-[#141A26] p-6 sm:p-8 shadow-sm">
           {children}
         </div>
 
-        <p
-          style={{ color: 'var(--color-text-dim)' }}
-          className="mt-6 text-center text-xs"
-        >
-          Internal Operations & Event Coordination Platform
-        </p>
+        {/* Security Trust Footnote */}
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-slate-500 text-[11px]">
+          <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+          <span>Enterprise 256-bit encrypted authentication</span>
+        </div>
       </div>
     </div>
   );

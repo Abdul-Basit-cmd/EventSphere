@@ -140,7 +140,7 @@ const AttendeeLayout = () => {
           backgroundColor: 'var(--color-sidebar)',
           borderColor: 'var(--color-border)',
         }}
-        className={`fixed md:sticky top-0 left-0 h-screen z-50 w-64 border-r flex flex-col justify-between transition-transform duration-200 ease-in-out md:translate-x-0 ${
+        className={`fixed md:sticky top-0 left-0 h-screen z-50 w-64 border-r flex flex-col justify-between shrink-0 transition-transform duration-200 ease-in-out md:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

@@ -27,15 +27,6 @@ const AttendeeDashboardPage = () => {
     loadSchedule();
   }, [loadSchedule]);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[350px]">
-        <LoadingSpinner size="lg" />
-        <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading attendee dashboard...</p>
-      </div>
-    );
-  }
-
   const registeredExposCount = registrations.length;
   const allBookmarks = registrations.flatMap((reg) =>
     (reg.bookmarkedSessions || []).map((session) => ({
@@ -66,7 +57,12 @@ const AttendeeDashboardPage = () => {
         </Link>
       </div>
 
-      {registeredExposCount === 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center min-h-[350px]">
+          <LoadingSpinner size="lg" />
+          <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading attendee dashboard...</p>
+        </div>
+      ) : registeredExposCount === 0 ? (
         <EmptyState
           icon={Calendar}
           title="No Expo Registrations Yet"

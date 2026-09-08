@@ -129,9 +129,21 @@ const ExhibitorProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[350px]">
-        <LoadingSpinner size="lg" />
-        <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading profile...</p>
+      <div className="space-y-6 max-w-4xl">
+        <div style={{ borderColor: 'var(--color-border)' }} className="flex items-center justify-between border-b pb-4 page-header-accent">
+          <div>
+            <h2 style={{ color: 'var(--color-text)' }} className="text-xl font-bold">
+              Exhibitor Profile
+            </h2>
+            <p style={{ color: 'var(--color-text-muted)' }} className="text-xs mt-0.5">
+              Fill in your business details to apply for participation in expos
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[350px]">
+          <LoadingSpinner size="lg" />
+          <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading profile...</p>
+        </div>
       </div>
     );
   }

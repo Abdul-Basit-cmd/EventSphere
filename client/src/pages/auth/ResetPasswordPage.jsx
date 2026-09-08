@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Mail, KeyRound, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { resetPasswordApi } from '../../api/authApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import FieldLabel from '../../components/ui/FieldLabel';
 
 const resetPasswordSchema = z
   .object({
@@ -26,6 +26,7 @@ const resetPasswordSchema = z
 
 const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -68,109 +69,124 @@ const ResetPasswordPage = () => {
 
   return (
     <form onSubmit={handleSubmit(handleResetSubmit)} className="space-y-4">
-      <div>
-        <FieldLabel htmlFor="email" required>Email address</FieldLabel>
-        <input
-          id="email"
-          type="email"
-          placeholder="name@company.com"
-          {...register('email')}
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-          className="w-full px-3 py-2 text-xs rounded-lg border transition-colors placeholder:text-[var(--color-text-dim)]"
-        />
+      {/* Email Input */}
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="block text-xs font-semibold text-slate-300">
+          Account email
+        </label>
+        <div className="relative">
+          <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+          <input
+            id="email"
+            type="email"
+            placeholder="name@company.com"
+            {...register('email')}
+            className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+        </div>
         {errors.email && (
-          <p style={{ color: 'var(--color-danger)' }} className="mt-1 text-xs">
+          <p className="text-xs text-rose-400 font-medium pt-0.5">
             {errors.email.message}
           </p>
         )}
       </div>
 
-      <div>
-        <FieldLabel htmlFor="otp" required>6-digit reset code</FieldLabel>
-        <input
-          id="otp"
-          type="text"
-          maxLength={6}
-          placeholder="123456"
-          {...register('otp')}
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-          className="w-full px-3 py-2 text-center text-base font-mono tracking-widest rounded-lg border transition-colors placeholder:text-[var(--color-text-dim)]"
-        />
+      {/* 6-Digit Code Input */}
+      <div className="space-y-1.5">
+        <label htmlFor="otp" className="block text-xs font-semibold text-slate-300">
+          6-digit reset code
+        </label>
+        <div className="relative">
+          <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+          <input
+            id="otp"
+            type="text"
+            maxLength={6}
+            placeholder="123456"
+            {...register('otp')}
+            className="w-full pl-10 pr-4 py-2.5 text-center text-sm font-mono tracking-[0.3em] font-bold rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-600 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+        </div>
         {errors.otp && (
-          <p style={{ color: 'var(--color-danger)' }} className="mt-1 text-xs">
+          <p className="text-xs text-rose-400 font-medium pt-0.5">
             {errors.otp.message}
           </p>
         )}
       </div>
 
-      <div>
-        <FieldLabel htmlFor="password" required>New password</FieldLabel>
-        <input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          placeholder="At least 8 characters"
-          {...register('password')}
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-          className="w-full px-3 py-2 text-xs rounded-lg border transition-colors placeholder:text-[var(--color-text-dim)]"
-        />
+      {/* New Password */}
+      <div className="space-y-1.5">
+        <label htmlFor="password" className="block text-xs font-semibold text-slate-300">
+          New password (min. 8 characters)
+        </label>
+        <div className="relative">
+          <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            placeholder="••••••••"
+            {...register('password')}
+            className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 transition-colors"
+            title={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
         {errors.password && (
-          <p style={{ color: 'var(--color-danger)' }} className="mt-1 text-xs">
+          <p className="text-xs text-rose-400 font-medium pt-0.5">
             {errors.password.message}
           </p>
         )}
       </div>
 
-      <div>
-        <FieldLabel htmlFor="confirmPassword" required>Confirm new password</FieldLabel>
-        <input
-          id="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          placeholder="Re-enter new password"
-          {...register('confirmPassword')}
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-          className="w-full px-3 py-2 text-xs rounded-lg border transition-colors placeholder:text-[var(--color-text-dim)]"
-        />
+      {/* Confirm Password */}
+      <div className="space-y-1.5">
+        <label htmlFor="confirmPassword" className="block text-xs font-semibold text-slate-300">
+          Confirm new password
+        </label>
+        <div className="relative">
+          <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+          <input
+            id="confirmPassword"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="new-password"
+            placeholder="••••••••"
+            {...register('confirmPassword')}
+            className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+        </div>
         {errors.confirmPassword && (
-          <p style={{ color: 'var(--color-danger)' }} className="mt-1 text-xs">
+          <p className="text-xs text-rose-400 font-medium pt-0.5">
             {errors.confirmPassword.message}
           </p>
         )}
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full mt-2 flex items-center justify-center py-2.5 px-4 rounded-lg text-xs font-semibold btn-primary disabled:opacity-60"
+        className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold btn-primary shadow-xs disabled:opacity-60 transition-all"
       >
-        {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
-        {isLoading ? 'Updating password...' : 'Reset password'}
+        {isLoading && <LoadingSpinner size="sm" />}
+        <span>{isLoading ? 'Updating password...' : 'Update Credentials'}</span>
+        {!isLoading && <ArrowRight className="w-4 h-4" />}
       </button>
 
-      <div className="text-center pt-2">
+      {/* Back Link */}
+      <div className="text-center pt-3 border-t border-slate-800/80">
         <Link
           to="/auth/login"
-          style={{ color: 'var(--color-text-muted)' }}
-          className="text-xs hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
         >
-          Cancel and back to sign in
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Cancel and back to sign in</span>
         </Link>
       </div>
     </form>

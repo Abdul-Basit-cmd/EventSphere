@@ -71,111 +71,126 @@ const AdminLayout = () => {
           backgroundColor: 'var(--color-sidebar)',
           borderColor: 'var(--color-border)',
         }}
-        className={`fixed inset-y-0 left-0 z-50 w-64 border-r flex flex-col transition-transform duration-200 ease-in-out md:static md:translate-x-0 ${
+        className={`fixed md:sticky top-0 left-0 h-screen z-50 w-64 border-r flex flex-col justify-between shrink-0 transition-transform duration-200 ease-in-out md:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Sidebar Header */}
-        <div
-          style={{ borderColor: 'var(--color-border)' }}
-          className="h-16 px-6 flex items-center justify-between border-b"
-        >
-          <div className="flex items-center gap-2.5">
-            <div
-              style={{
-                backgroundColor: 'var(--color-primary)',
-                color: 'var(--color-text)',
-              }}
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-xs"
-            >
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <span
-                style={{
-                  color: 'var(--color-text)',
-                  fontFamily: 'var(--font-heading)',
-                }}
-                className="text-sm font-bold tracking-tight block"
-              >
-                EventSphere
-              </span>
-              <span
-                style={{ color: 'var(--color-text-dim)' }}
-                className="block text-[10px] uppercase font-semibold tracking-wider"
-              >
-                Admin Console
-              </span>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="md:hidden p-1 rounded-md text-[var(--color-text-muted)] hover:text-white"
-            onClick={closeMobileMenu}
+        <div className="flex flex-col flex-1 overflow-y-auto">
+          {/* Sidebar Header */}
+          <div
+            style={{ borderColor: 'var(--color-border)' }}
+            className="h-16 px-6 flex items-center justify-between border-b shrink-0"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <div className="flex items-center gap-2.5">
+              <div
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-text)',
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center shadow-xs"
+              >
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <span
+                  style={{
+                    color: 'var(--color-text)',
+                    fontFamily: 'var(--font-heading)',
+                  }}
+                  className="text-sm font-bold tracking-tight block"
+                >
+                  EventSphere
+                </span>
+                <span
+                  style={{ color: 'var(--color-text-dim)' }}
+                  className="block text-[10px] uppercase font-semibold tracking-wider"
+                >
+                  Admin Console
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="md:hidden p-1 rounded-md text-[var(--color-text-muted)] hover:text-white"
+              onClick={closeMobileMenu}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="p-3 space-y-1 flex-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname.startsWith(item.path);
+
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={closeMobileMenu}
+                  style={{
+                    borderLeft: isActive ? '2px solid var(--color-primary)' : '2px solid transparent',
+                    backgroundColor: isActive ? 'var(--color-primary-muted)' : 'transparent',
+                    color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)',
+                    transition: 'all 0.15s ease',
+                  }}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-r-lg text-xs font-semibold hover:bg-[var(--color-surface-alt)] hover:text-white"
+                >
+                  <Icon className="w-4 h-4" style={{ color: isActive ? 'var(--color-primary)' : 'inherit' }} />
+                  <span>{item.label}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname.startsWith(item.path);
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={closeMobileMenu}
-                style={{
-                  borderLeft: isActive ? '2px solid var(--color-primary)' : '2px solid transparent',
-                  backgroundColor: isActive ? 'var(--color-primary-muted)' : 'transparent',
-                  color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)',
-                  transition: 'all 0.15s ease',
-                }}
-                className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold hover:bg-[var(--color-surface-alt)] hover:text-white"
-              >
-                <Icon className="w-4 h-4" style={{ color: isActive ? 'var(--color-primary)' : 'inherit' }} />
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </nav>
-
-        {/* Sidebar User Info & Logout */}
+        {/* Sidebar User Info & Logout (Matches Attendee & Exhibitor) */}
         <div
           style={{
             borderColor: 'var(--color-border)',
             backgroundColor: 'var(--color-surface)',
           }}
-          className="p-4 border-t"
+          className="p-3 border-t shrink-0"
         >
-          <div className="flex items-center justify-between">
-            <div className="min-w-0 flex-1 mr-2">
-              <p style={{ color: 'var(--color-text)' }} className="text-xs font-semibold truncate">
-                {user?.name || 'Administrator'}
-              </p>
-              <p style={{ color: 'var(--color-text-muted)' }} className="text-[11px] truncate">
-                {user?.email || 'admin@eventsphere.com'}
-              </p>
+          <div
+            style={{
+              backgroundColor: 'var(--color-surface-alt)',
+              borderColor: 'var(--color-border)',
+            }}
+            className="flex items-center justify-between p-2 rounded-xl border"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div
+                style={{
+                  backgroundColor: 'var(--color-surface)',
+                  color: 'var(--color-text)',
+                }}
+                className="w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs shrink-0"
+              >
+                <Users className="w-4 h-4 text-[var(--color-text-muted)]" />
+              </div>
+              <div className="min-w-0 leading-tight">
+                <p style={{ color: 'var(--color-text)' }} className="text-xs font-semibold truncate">
+                  {user?.name || 'Administrator'}
+                </p>
+                <p style={{ color: 'var(--color-text-muted)' }} className="text-[10px] capitalize truncate">
+                  Admin
+                </p>
+              </div>
             </div>
             <button
               type="button"
-              disabled={isLoggingOut}
               onClick={handleLogout}
+              disabled={isLoggingOut}
               style={{
                 color: 'var(--color-danger)',
                 background: 'var(--color-danger-muted)',
               }}
-              className="p-2 rounded-lg hover:brightness-110 transition-all disabled:opacity-50"
-              title="Log out"
+              className="p-1.5 rounded-md hover:brightness-110 transition-all"
+              title="Log Out"
             >
-              {isLoggingOut ? (
-                <LoadingSpinner size="sm" />
-              ) : (
-                <LogOut className="w-4 h-4" />
-              )}
+              {isLoggingOut ? <LoadingSpinner size="sm" /> : <LogOut className="w-4 h-4" />}
             </button>
           </div>
         </div>

@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { loginUser } from '../../api/authApi';
 import { useAuthStore } from '../../store/authStore';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import FieldLabel from '../../components/ui/FieldLabel';
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, 'Email is required').email('Invalid email address'),
@@ -16,6 +16,7 @@ const loginSchema = z.object({
 
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,76 +78,87 @@ const LoginPage = () => {
 
   return (
     <form onSubmit={handleSubmit(handleLoginSubmit)} className="space-y-4">
-      <div>
-        <FieldLabel htmlFor="email" required>Email address</FieldLabel>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          placeholder="name@company.com"
-          {...register('email')}
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-          className="w-full px-3 py-2 text-xs rounded-lg border transition-colors placeholder:text-[var(--color-text-dim)]"
-        />
+      {/* Email Input */}
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="block text-xs font-semibold text-slate-300">
+          Work or personal email
+        </label>
+        <div className="relative">
+          <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="name@company.com"
+            {...register('email')}
+            className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+        </div>
         {errors.email && (
-          <p style={{ color: 'var(--color-danger)' }} className="mt-1 text-xs">
+          <p className="text-xs text-rose-400 font-medium pt-0.5">
             {errors.email.message}
           </p>
         )}
       </div>
 
-      <div>
-        <div className="flex items-center justify-between mb-1">
-          <FieldLabel htmlFor="password" required>Password</FieldLabel>
+      {/* Password Input */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className="block text-xs font-semibold text-slate-300">
+            Account password
+          </label>
           <Link
             to="/auth/forgot-password"
-            style={{ color: 'var(--color-primary)' }}
-            className="text-xs hover:underline"
+            className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
           >
             Forgot password?
           </Link>
         </div>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          {...register('password')}
-          style={{
-            backgroundColor: 'var(--color-surface-alt)',
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text)',
-          }}
-          className="w-full px-3 py-2 text-xs rounded-lg border transition-colors placeholder:text-[var(--color-text-dim)]"
-        />
+        <div className="relative">
+          <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3 pointer-events-none" />
+          <input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            placeholder="••••••••"
+            {...register('password')}
+            className="w-full pl-10 pr-10 py-2.5 text-xs rounded-xl bg-slate-950/70 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 transition-colors"
+            title={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
         {errors.password && (
-          <p style={{ color: 'var(--color-danger)' }} className="mt-1 text-xs">
+          <p className="text-xs text-rose-400 font-medium pt-0.5">
             {errors.password.message}
           </p>
         )}
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full mt-2 flex items-center justify-center py-2.5 px-4 rounded-lg text-xs font-semibold btn-primary disabled:opacity-60"
+        className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold btn-primary shadow-xs disabled:opacity-60 transition-all"
       >
-        {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
-        {isLoading ? 'Signing in...' : 'Sign in'}
+        {isLoading && <LoadingSpinner size="sm" />}
+        <span>{isLoading ? 'Authenticating...' : 'Sign in to EventSphere'}</span>
+        {!isLoading && <ArrowRight className="w-4 h-4" />}
       </button>
 
-      <div className="text-center pt-2">
-        <span style={{ color: 'var(--color-text-muted)' }} className="text-xs">
-          Don't have an account?{' '}
+      {/* Register Footer */}
+      <div className="text-center pt-3 border-t border-slate-800/80">
+        <span className="text-xs text-slate-400">
+          Don't have an account yet?{' '}
         </span>
         <Link
           to="/auth/register"
-          style={{ color: 'var(--color-primary)' }}
-          className="text-xs font-semibold hover:underline"
+          className="text-xs font-bold text-blue-400 hover:text-blue-300 hover:underline transition-colors"
         >
           Create account
         </Link>

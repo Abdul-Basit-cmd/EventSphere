@@ -49,22 +49,25 @@ const MySchedulePage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[350px]">
-        <LoadingSpinner size="lg" />
-        <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading your personalized schedule...</p>
-      </div>
-    );
-  }
-
-  if (registrations.length === 0) {
-    return (
-      <div className="space-y-6 max-w-5xl">
-        <div style={{ borderColor: 'var(--color-border)' }} className="border-b pb-4 page-header-accent">
+  return (
+    <div className="space-y-6 max-w-5xl">
+      <div style={{ borderColor: 'var(--color-border)' }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+        <div className="page-header-accent">
           <h2 style={{ color: 'var(--color-text)' }} className="text-xl font-bold">My Event Schedule</h2>
-          <p style={{ color: 'var(--color-text-muted)' }} className="text-xs mt-0.5">Bookmarked keynotes and speaker sessions across your registered exhibitions</p>
+          <p style={{ color: 'var(--color-text-muted)' }} className="text-xs mt-0.5">Bookmarked keynotes and speaker sessions grouped by exhibition</p>
         </div>
+        <Link to="/attendee/expos" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg btn-primary self-start sm:self-auto">
+          <span>Browse Expos</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center min-h-[350px]">
+          <LoadingSpinner size="lg" />
+          <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading your personalized schedule...</p>
+        </div>
+      ) : registrations.length === 0 ? (
         <EmptyState
           icon={Calendar}
           title="No registered expos"
@@ -76,24 +79,8 @@ const MySchedulePage = () => {
             </Link>
           }
         />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6 max-w-5xl">
-      <div style={{ borderColor: 'var(--color-border)' }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
-        <div className="page-header-accent">
-          <h2 style={{ color: 'var(--color-text)' }} className="text-xl font-bold">My Event Schedule</h2>
-          <p style={{ color: 'var(--color-text-muted)' }} className="text-xs mt-0.5">Bookmarked keynotes and speaker sessions grouped by exhibition</p>
-        </div>
-        <Link to="/attendee/expos" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg btn-primary self-start sm:self-auto">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Explore More Expos</span>
-        </Link>
-      </div>
-
-      <div className="space-y-6">
+      ) : (
+        <div className="space-y-6">
         {registrations.map((reg) => {
           const expo = reg.expo;
           if (!expo) return null;
@@ -177,6 +164,7 @@ const MySchedulePage = () => {
           );
         })}
       </div>
+      )}
     </div>
   );
 };

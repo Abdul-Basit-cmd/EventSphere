@@ -88,11 +88,23 @@ const ExhibitorDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
-        <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs font-medium">
-          Loading profile details...
-        </p>
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <div>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/exhibitors')}
+            className="inline-flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Exhibitors</span>
+          </button>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[350px]">
+          <LoadingSpinner size="lg" />
+          <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs font-medium">
+            Loading profile details...
+          </p>
+        </div>
       </div>
     );
   }

@@ -44,15 +44,6 @@ const ExhibitorDashboardPage = () => {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[350px]">
-        <LoadingSpinner size="lg" />
-        <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading exhibitor dashboard...</p>
-      </div>
-    );
-  }
-
   const booths = data?.booths || [];
   const unreadInquiries = data?.unreadInquiries ?? 0;
 
@@ -64,6 +55,14 @@ const ExhibitorDashboardPage = () => {
           Overview of application status, assigned booths, and commercial inquiries
         </p>
       </div>
+
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center min-h-[350px]">
+          <LoadingSpinner size="lg" />
+          <p style={{ color: 'var(--color-text-muted)' }} className="mt-3 text-xs">Loading exhibitor dashboard...</p>
+        </div>
+      ) : (
+        <>
 
       {/* 1. Incomplete profile banner */}
       {!isSubmitted && (
@@ -262,6 +261,8 @@ const ExhibitorDashboardPage = () => {
 
       {/* Assigned Booths Table */}
       <DashboardBoothsTable booths={booths} />
+        </>
+      )}
     </div>
   );
 };

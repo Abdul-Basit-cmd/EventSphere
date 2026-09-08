@@ -3,7 +3,7 @@ import config from '../config/config.js'
 
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: config.NODE_ENV === "development" ? 20 : 5, 
+  max: config.NODE_ENV === "development" ? 200 : 5, 
   message: {
     status: "Fail",
     message: "Too many login attempts. Please try again after 15 minutes."
@@ -14,7 +14,7 @@ export const loginRateLimiter = rateLimit({
 
 export const emailRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: config.NODE_ENV === "development" ? 20 : 5, 
+  max: config.NODE_ENV === "development" ? 200 : 5, 
   message: {
     status: "Fail",
     message: "Too many requests. Please try again after 15 minutes."
