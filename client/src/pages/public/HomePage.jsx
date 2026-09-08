@@ -10,6 +10,9 @@ import {
   Sparkles,
   CheckCircle2,
   ChevronRight,
+  ChevronLeft,
+  Filter,
+  Clock,
   ShieldCheck,
   Building2,
   QrCode,
@@ -17,6 +20,7 @@ import {
 import { motion } from 'framer-motion';
 import { fetchExpos } from '../../api/expoApi';
 import { getExpoCoverImage } from '../../utils/expoImages';
+import StatusBadge from '../../components/StatusBadge';
 
 const featureCards = [
   {
@@ -75,50 +79,24 @@ const steps = [
   },
 ];
 
-const FALLBACK_FEATURED = [
-  {
-    _id: 'featured-1',
-    title: 'Global Tech & AI Summit 2026',
-    theme: 'Artificial Intelligence & Robotics',
-    description: 'Explore generative AI breakthroughs, autonomous robotics displays, and enterprise cloud infrastructure.',
-    date: '2026-10-15T09:00:00.000Z',
-    location: 'Metropolitan Convention Center, Hall A',
-  },
-  {
-    _id: 'featured-2',
-    title: 'Clean Energy & Climate Expo',
-    theme: 'Renewable Power & Grid Tech',
-    description: 'Connecting solar pioneers, battery storage innovators, and green energy venture leaders.',
-    date: '2026-11-04T09:00:00.000Z',
-    location: 'Bayfront Expo Pavilion',
-  },
-  {
-    _id: 'featured-3',
-    title: 'International FinTech & Commerce Fair',
-    theme: 'Digital Banking & Enterprise APIs',
-    description: 'The premier gathering for decentralized payments, core banking architects, and cross-border trade.',
-    date: '2026-12-08T09:00:00.000Z',
-    location: 'Grand Horizon Center, San Francisco',
-  },
-];
-
 const HomePage = () => {
-  const [featuredExpos, setFeaturedExpos] = useState([]);
+  const [expos, setExpos] = useState([]);
   const [loadingExpos, setLoadingExpos] = useState(true);
+  const [activeCategory, setActiveCategory] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
     const loadFeatured = async () => {
+      setLoadingExpos(true);
       try {
-        const res = await fetchExpos({ limit: 3 });
+        const res = await fetchExpos({ limit: 20 });
         if (isMounted) {
           const list = res.data?.expos || [];
-          setFeaturedExpos(list.length > 0 ? list.slice(0, 3) : FALLBACK_FEATURED);
+          setExpos(list);
         }
       } catch (err) {
-        if (isMounted) {
-          setFeaturedExpos(FALLBACK_FEATURED);
-        }
+        console.error('Failed to fetch dynamic expos:', err);
       } finally {
         if (isMounted) setLoadingExpos(false);
       }
@@ -128,6 +106,29 @@ const HomePage = () => {
       isMounted = false;
     };
   }, []);
+
+  // Compute dynamic categories from real database expos
+  const categories = React.useMemo(() => {
+    const cats = new Set();
+    expos.forEach((e) => {
+      if (e.theme && e.theme.trim()) cats.add(e.theme.trim());
+    });
+    return ['ALL', ...Array.from(cats)];
+  }, [expos]);
+
+  const filteredExpos = React.useMemo(() => {
+    if (activeCategory === 'ALL') return expos;
+    return expos.filter((e) => e.theme && e.theme.toLowerCase() === activeCategory.toLowerCase());
+  }, [expos, activeCategory]);
+
+  const pageSize = 3;
+  const totalPages = Math.ceil(filteredExpos.length / pageSize) || 1;
+  const currentExpos = filteredExpos.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+  const handleCategoryChange = (cat) => {
+    setActiveCategory(cat);
+    setCurrentPage(0);
+  };
 
   return (
     <div className="space-y-24 md:space-y-32">
@@ -237,13 +238,13 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 2. FEATURED EXPOS WITH UNSPLASH IMAGERY & GLASS CARDS */}
-      <section className="space-y-8">
+      {/* 2. DYNAMIC FEATURED EXPOS WITH UNSPLASH IMAGERY & GLASS CARDS */}
+      <section className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Featured Exhibitions</span>
+              <span>Live Exhibition Directory</span>
             </div>
             <h2
               style={{ color: 'var(--color-text)', fontFamily: 'var(--font-heading)' }}
@@ -252,85 +253,170 @@ const HomePage = () => {
               Explore Flagship Industry Expos
             </h2>
             <p style={{ color: 'var(--color-text-muted)' }} className="text-xs sm:text-sm">
-              Discover verified convention dates, keynote speakers, and participating industry brands.
+              Discover verified convention dates, keynote speakers, and participating industry brands live from the database.
             </p>
           </div>
-          <Link
-            to="/expos"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors group self-start sm:self-auto"
-          >
-            <span>Browse all expos</span>
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+
+          <div className="flex items-center gap-3">
+            {/* Pagination controls if more than 3 expos */}
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5 p-1 rounded-xl border border-slate-800 bg-slate-900/80">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                  disabled={currentPage === 0}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[11px] font-mono px-2 text-slate-400">
+                  {currentPage + 1} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={currentPage >= totalPages - 1}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent"
+                  title="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <Link
+              to="/expos"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors group self-start sm:self-auto"
+            >
+              <span>Browse all ({expos.length})</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuredExpos.map((expo, idx) => {
-            const coverImage = getExpoCoverImage(expo, idx);
-            return (
-              <motion.div
-                key={expo._id || idx}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: 0.1 * idx, ease: 'easeOut' }}
-                className="group relative flex flex-col rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-md overflow-hidden hover:border-blue-500/40 hover:-translate-y-1.5 transition-all duration-300 shadow-lg shadow-black/20"
+        {/* Dynamic Category Tabs */}
+        {categories.length > 1 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-1.5 text-slate-500 text-xs shrink-0 pr-1">
+              <Filter className="w-3.5 h-3.5" />
+              <span>Theme:</span>
+            </div>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => handleCategoryChange(cat)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap ${
+                  activeCategory === cat
+                    ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                    : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'
+                }`}
               >
-                {/* Image Container with Zoom & Gradient Overlay */}
-                <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-950">
-                  <img
-                    src={coverImage}
-                    alt={expo.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E131F] via-[#0E131F]/40 to-transparent" />
-                  
-                  {/* Theme Badge Overlay */}
-                  <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-blue-400 border border-blue-500/30">
-                      {expo.theme || 'Industry Expo'}
-                    </span>
-                  </div>
-                </div>
+                {cat === 'ALL' ? `All Expos (${expos.length})` : cat}
+              </button>
+            ))}
+          </div>
+        )}
 
-                {/* Card Body */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    <h3
-                      style={{ color: 'var(--color-text)', fontFamily: 'var(--font-heading)' }}
-                      className="text-base font-bold line-clamp-1 group-hover:text-blue-300 transition-colors"
-                    >
-                      {expo.title}
-                    </h3>
-                    <p style={{ color: 'var(--color-text-muted)' }} className="text-xs line-clamp-2 leading-relaxed">
-                      {expo.description || 'Join leading organizations and industry delegates at this exhibition.'}
-                    </p>
-                  </div>
+        {/* Loading Skeletons or Dynamic Expos Grid */}
+        {loadingExpos ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((n) => (
+              <div
+                key={n}
+                className="rounded-2xl border border-slate-800/60 bg-slate-900/40 p-5 space-y-4 animate-pulse"
+              >
+                <div className="h-44 rounded-xl bg-slate-800/50" />
+                <div className="h-4 w-3/4 rounded bg-slate-800/50" />
+                <div className="h-3 w-full rounded bg-slate-800/30" />
+                <div className="h-3 w-1/2 rounded bg-slate-800/30" />
+                <div className="h-9 rounded-lg bg-slate-800/40 mt-4" />
+              </div>
+            ))}
+          </div>
+        ) : currentExpos.length === 0 ? (
+          <div className="p-8 text-center rounded-2xl border border-slate-800 bg-slate-900/40 space-y-2">
+            <p style={{ color: 'var(--color-text-muted)' }} className="text-xs">
+              No exhibitions found for this category.
+            </p>
+            <button
+              type="button"
+              onClick={() => handleCategoryChange('ALL')}
+              className="text-xs text-blue-400 font-semibold hover:underline"
+            >
+              Reset to all expos
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {currentExpos.map((expo, idx) => {
+              const coverImage = getExpoCoverImage(expo, idx);
+              return (
+                <motion.div
+                  key={expo._id || idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.08 * idx, ease: 'easeOut' }}
+                  className="group relative flex flex-col rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-md overflow-hidden hover:border-blue-500/40 hover:-translate-y-1.5 transition-all duration-300 shadow-lg shadow-black/20"
+                >
+                  {/* Image Container with Zoom & Gradient Overlay */}
+                  <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-slate-950">
+                    <img
+                      src={coverImage}
+                      alt={expo.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0E131F] via-[#0E131F]/40 to-transparent" />
 
-                  <div className="space-y-3 pt-2 border-t border-slate-800/70 text-xs text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                      <span>{expo.date ? new Date(expo.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Q4 2026'}</span>
+                    {/* Theme & Status Overlay */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-blue-400 border border-blue-500/30">
+                        {expo.theme || 'Industry Expo'}
+                      </span>
+                      {expo.status && <StatusBadge status={expo.status} />}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                      <span className="truncate">{expo.location || 'Exhibition Grounds'}</span>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      <h3
+                        style={{ color: 'var(--color-text)', fontFamily: 'var(--font-heading)' }}
+                        className="text-base font-bold line-clamp-1 group-hover:text-blue-300 transition-colors"
+                      >
+                        {expo.title}
+                      </h3>
+                      <p style={{ color: 'var(--color-text-muted)' }} className="text-xs line-clamp-2 leading-relaxed">
+                        {expo.description || 'Join leading organizations and industry delegates at this exhibition.'}
+                      </p>
                     </div>
 
-                    <Link
-                      to={expo._id?.startsWith('featured-') ? '/expos' : `/expos/${expo._id}`}
-                      className="mt-2 w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800/80 hover:bg-blue-600 text-slate-200 hover:text-white transition-all duration-200"
-                    >
-                      <span>Explore Expo Details</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <div className="space-y-3 pt-2 border-t border-slate-800/70 text-xs text-slate-400">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <span>{expo.date ? new Date(expo.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Upcoming 2025/2026'}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <span className="truncate">{expo.location || 'Exhibition Grounds'}</span>
+                      </div>
+
+                      <Link
+                        to={`/expos/${expo._id}`}
+                        className="mt-2 w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg bg-slate-800/80 hover:bg-blue-600 text-slate-200 hover:text-white transition-all duration-200"
+                      >
+                        <span>Explore Expo Details</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* 3. DESIGNED FOR EVERY STAKEHOLDER (AUDIENCE CARDS) */}
