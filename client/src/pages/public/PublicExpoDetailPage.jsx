@@ -9,6 +9,7 @@ import { getExpoBooths } from '../../api/boothBrowseApi';
 import StatusBadge from '../../components/StatusBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import EmptyState from '../../components/EmptyState';
+import { getExpoCoverImage } from '../../utils/expoImages';
 
 const PublicExpoDetailPage = () => {
   const { expoId } = useParams();
@@ -97,30 +98,44 @@ const PublicExpoDetailPage = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
-        className="p-6 rounded-[10px] border space-y-4"
+        className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-md overflow-hidden shadow-xl"
       >
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span style={{ color: 'var(--color-primary)' }} className="text-[11px] font-semibold uppercase tracking-wider">
+        <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-slate-950">
+          <img
+            src={getExpoCoverImage(expo)}
+            alt={expo?.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0E131F] via-[#0E131F]/50 to-transparent" />
+          <div className="absolute top-4 left-4">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-blue-400 border border-blue-500/30">
               {expo?.theme || 'Exhibition'}
             </span>
+          </div>
+          <div className="absolute top-4 right-4">
             <StatusBadge status={expo?.status} />
           </div>
-          <h3 style={{ color: 'var(--color-text)', fontFamily: 'var(--font-heading)' }} className="text-lg font-bold">
-            {expo?.title}
-          </h3>
-          <p style={{ color: 'var(--color-text-muted)' }} className="text-xs leading-relaxed">{expo?.description}</p>
         </div>
 
-        <div style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }} className="flex flex-wrap items-center gap-6 pt-3 border-t text-xs">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-            <span>{expo?.date ? new Date(expo.date).toLocaleDateString() : 'TBD'}</span>
+        <div className="p-6 sm:p-8 space-y-4">
+          <div className="space-y-2">
+            <h3 style={{ color: 'var(--color-text)', fontFamily: 'var(--font-heading)' }} className="text-xl sm:text-2xl font-bold">
+              {expo?.title}
+            </h3>
+            <p style={{ color: 'var(--color-text-muted)' }} className="text-xs sm:text-sm leading-relaxed max-w-3xl">
+              {expo?.description}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
-            <span>{expo?.location || 'Exhibition Grounds'}</span>
+
+          <div style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }} className="flex flex-wrap items-center gap-6 pt-4 border-t text-xs">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-blue-400" />
+              <span>{expo?.date ? new Date(expo.date).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : 'TBD'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-blue-400" />
+              <span>{expo?.location || 'Exhibition Grounds'}</span>
+            </div>
           </div>
         </div>
       </motion.div>
